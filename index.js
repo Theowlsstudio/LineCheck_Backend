@@ -1,26 +1,49 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const dotenv = require("dotenv");
-const cors = require("cors");
-const app = express();
-const DBconnection = require('./utliz/DBconnection')
-const port = process.env.PORT || 3002;
+var dotenv = require("dotenv");
+var app = require('./app');
+var http = require('http');
 
-const Routes = require('./routes/index');
-const serveImage = require('./routes/serveImage');
-const corsOptions = {
-  origin: '*',
+const server = http.createServer(app);
+
+const port = process.env.PORT || '3002'
+app.set("port", port);
+
+if (process.env.NODE_ENV !== "production") {
+    dotenv.config();
 }
-dotenv.config();
 
-DBconnection();
+function onError(error) {
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cors(corsOptions))
-app.use('/api', Routes);
-app.get('/image/:id', serveImage)
+    var bind = typeof port === 'string'
+        ? 'Pipe ' + port
+        : 'Port ' + port;
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+        case 'EACCES':
+            console.error(bind + ' requires elevated privileges');
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error(bind + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
+}
+
+
+function onListening() {
+    var addr = server.address();
+    var bind = typeof addr === 'string'
+        ? 'pipe ' + addr
+        : 'port ' + addr.port;
+    console.log(`server is live on ${bind}`)
+}
+
+server.listen(port);
+server.on("listening", onListening);
+server.on("error", onError);
