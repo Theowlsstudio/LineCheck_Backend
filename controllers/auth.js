@@ -85,19 +85,11 @@ const Login = async (req, res) => {
             let token = jwt.sign({ _id: bar_user._id }, JWT_SECRET);
 
             return res.status(200).json({
-                msg: "Login successfull", token, user: {
-                    firstname: bar_user.firstname,
-                    email: bar_user.email,
-                    number: bar_user.number,
-                    role_type: bar_user.role,
-                    id: bar_user._id,
-                    description: bar_user.description,
-                    rating: bar_user.rating
-                }
+                msg: "Login successfull", token, user: bar_user
             })
         }
 
-        return res.status(400).json({msg:"Bad request, No use exists with this email."})
+        return res.status(400).json({ msg: "Bad request, No use exists with this email." })
 
     } catch (error) {
         return res.status(error?.statusCode ?? 500).json({ msg: error?.message ?? 'internal server error' })
